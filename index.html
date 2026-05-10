@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cannibal - by JustRandomScaler</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:linear-gradient(135deg,#090909,#1a0000,#300000);
+    color:white;
+    overflow-x:hidden;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+    padding:20px;
+}
+
+.title{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.title h1{
+    font-size:56px;
+    margin:0;
+    color:#ff4040;
+    letter-spacing:3px;
+}
+
+.title p{
+    color:#cccccc;
+    margin-top:8px;
+}
+
+.topbar{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+    margin-bottom:25px;
+}
+
+.card{
+    flex:1;
+    min-width:180px;
+    background:rgba(255,255,255,0.08);
+    padding:18px;
+    border-radius:18px;
+    text-align:center;
+    box-shadow:0 0 15px rgba(0,0,0,0.5);
+}
+
+.questionBox{
+    background:rgba(255,255,255,0.08);
+    padding:30px;
+    border-radius:20px;
+}
+
+.question{
+    font-size:28px;
+    margin-bottom:25px;
+    line-height:1.5;
+}
+
+.options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.option{
+    border:none;
+    border-radius:16px;
+    padding:18px;
+    cursor:pointer;
+    background:#f2f2f2;
+    color:#111;
+    font-size:16px;
+    font-weight:bold;
+    line-height:1.5;
+    transition:0.2s;
+}
+
+.option:hover{
+    transform:scale(1.02);
+}
+
+.correct{
+    background:#2ecc71 !important;
+    color:white !important;
+}
+
+.wrong{
+    background:#e74c3c !important;
+    color:white !important;
+}
+
+.result{
+    margin-top:20px;
+    font-size:20px;
+    font-weight:bold;
+}
+
+.final{
+    display:none;
+    text-align:center;
+    background:rgba(255,255,255,0.08);
+    padding:35px;
+    border-radius:20px;
+    margin-top:30px;
+}
+
+.replay{
+    margin-top:20px;
+    padding:15px 35px;
+    border:none;
+    border-radius:15px;
+    background:#ff4040;
+    color:white;
+    font-size:20px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.popup{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:#ff4040;
+    color:white;
+    padding:35px 50px;
+    border-radius:25px;
+    font-size:34px;
+    text-align:center;
+    display:none;
+    z-index:999;
+    box-shadow:0 0 40px rgba(255,0,0,0.6);
+}
+
+@media(max-width:800px){
+
+.options{
+grid-template-columns:1fr;
+}
+
+.question{
+font-size:22px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="popup" id="popup"></div>
+
+<div class="container">
+
+<div class="title">
+<h1>CANNIBAL</h1>
+<p>by JustRandomScaler</p>
+</div>
+
+<div class="topbar">
+
+<div class="card">
+⏰ Time Left<br>
+<span id="time">300</span>s
+</div>
+
+<div class="card">
+🎯 Score<br>
+<span id="score">0</span>
+</div>
+
+<div class="card">
+📚 Question<br>
+<span id="current">1</span>/30
+</div>
+
+</div>
+
+<div class="questionBox" id="quizBox">
+
+<div class="question" id="question"></div>
+
+<div class="options" id="options"></div>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<div class="final" id="final">
+
+<h2>QUIZ COMPLETE</h2>
+
+<div id="finalText"></div>
+
+<button class="replay" onclick="location.reload()">
+🔄 Replay
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const questions = [
+
+{
+q:"How did Hannibal successfully frame Will Graham without immediate suspicion?",
+a:"By synchronizing neurological decline with strategically planted behavioral evidence",
+o:[
+"By synchronizing neurological decline with strategically planted behavioral evidence",
+"By reinforcing emotional instability through carefully manipulated forensic assumptions",
+"By constructing investigative confusion around psychologically distorted crime analysis",
+"By integrating staged inconsistencies within gradually escalating FBI suspicion"
+]
+},
+
+{
+q:"What made Hannibal’s emotional intelligence appear nearly omniscient?",
+a:"He interpreted unconscious emotional reactions before subjects recognized them",
+o:[
+"He interpreted unconscious emotional reactions before subjects recognized them",
+"He reconstructed interpersonal motives through fragmented psychological observation",
+"He predicted behavioral instability using adaptive emotional synchronization patterns",
+"He manipulated relational vulnerability beneath socially calibrated interactions"
+]
+},
+
+{
+q:"How did Hannibal psychologically dominate Bedelia Du Maurier over time?",
+a:"By balancing selective honesty with controlled emotional vulnerability patterns",
+o:[
+"By balancing selective honesty with controlled emotional vulnerability patterns",
+"By synchronizing interpersonal trust against carefully restrained psychological distance",
+"By redirecting emotional uncertainty through strategically measured conversational intimacy",
+"By integrating intellectual transparency beneath emotionally filtered self-disclosure"
+]
+},
+
+{
+q:"What was the hidden brilliance behind Hannibal’s Chilton framing strategy?",
+a:"It aligned forensic plausibility with preexisting institutional distrust mechanisms",
+o:[
+"It aligned forensic plausibility with preexisting institutional distrust mechanisms",
+"It synchronized behavioral suspicion against emotionally unstable investigative narratives",
+"It integrated manipulated assumptions within psychologically believable procedural logic",
+"It redirected investigative interpretation beneath strategically layered forensic ambiguity"
+]
+},
+
+{
+q:"How did Hannibal destabilize Will Graham psychologically across multiple seasons?",
+a:"By amplifying self-doubt through escalating perceptual and emotional contradictions",
+o:[
+"By amplifying self-doubt through escalating perceptual and emotional contradictions",
+"By synchronizing empathy overload with gradually deteriorating behavioral certainty",
+"By integrating investigative trauma beneath unresolved identity fragmentation patterns",
+"By reinforcing psychological instability through manipulated relational dependency cycles"
+]
+},
+
+{
+q:"What demonstrated Hannibal’s deep integration into the FBI most effectively?",
+a:"His credibility became emotionally essential to investigative and personal stability",
+o:[
+"His credibility became emotionally essential to investigative and personal stability",
+"His psychological insight reinforced institutional trust beneath investigative uncertainty",
+"His professional usefulness synchronized naturally with emotionally dependent relationships",
+"His interpersonal influence expanded through strategically calibrated forensic cooperation"
+]
+},
+
+{
+q:"How did Hannibal manipulate Jack Crawford throughout the Miriam Lass situation?",
+a:"By weaponizing emotional guilt beneath carefully controlled investigative optimism",
+o:[
+"By weaponizing emotional guilt beneath carefully controlled investigative optimism",
+"By reinforcing unresolved responsibility through strategically timed emotional revelations",
+"By synchronizing hope and despair within psychologically exhausting investigative cycles",
+"By integrating emotional dependency beneath increasingly unstable procedural trust"
+]
+},
+
+{
+q:"Why was Hannibal’s manipulation style extraordinarily difficult to expose?",
+a:"Truthful emotional behavior concealed structurally engineered psychological deception",
+o:[
+"Truthful emotional behavior concealed structurally engineered psychological deception",
+"Authentic interpersonal connection redirected suspicion toward distorted interpretations",
+"Controlled vulnerability synchronized naturally with socially trusted behavioral patterns",
+"Psychological realism disguised strategically layered emotional manipulation structures"
+]
+},
+
+{
+q:"How did Hannibal exploit Will’s empathy disorder intellectually?",
+a:"By dissolving moral boundaries through psychologically immersive criminal identification",
+o:[
+"By dissolving moral boundaries through psychologically immersive criminal identification",
+"By synchronizing emotional projection against unstable investigative self-perception",
+"By integrating behavioral empathy within increasingly fractured identity structures",
+"By reinforcing psychological immersion beneath escalating relational dependence"
+]
+},
+
+{
+q:"What was Hannibal’s greatest conversational advantage during manipulation?",
+a:"He controlled emotional direction without disrupting intellectual conversational balance",
+o:[
+"He controlled emotional direction without disrupting intellectual conversational balance",
+"He redirected interpersonal assumptions through strategically restrained verbal disclosure",
+"He synchronized psychological observation beneath socially acceptable interaction rhythms",
+"He balanced emotional influence against intellectually calibrated behavioral responses"
+]
+},
+
+{
+q:"How did Hannibal repeatedly manipulate highly intelligent investigators?",
+a:"By exploiting hidden emotional vulnerabilities beneath intellectual self-confidence structures",
+o:[
+"By exploiting hidden emotional vulnerabilities beneath intellectual self-confidence structures",
+"By synchronizing psychological insight against procedurally reinforced investigative assumptions",
+"By redirecting logical reasoning toward emotionally destabilized behavioral conclusions",
+"By integrating adaptive manipulation within socially validated professional interaction"
+]
+},
+
+{
+q:"What made Hannibal’s contingency planning exceptionally resilient under pressure?",
+a:"Each strategic outcome naturally reinforced additional adaptive contingency pathways",
+o:[
+"Each strategic outcome naturally reinforced additional adaptive contingency pathways",
+"Every emotional manipulation supported multiple investigative interpretation possibilities",
+"All procedural disruptions synchronized with psychologically reinforced behavioral uncertainty",
+"Every relational interaction stabilized strategically layered deception structures"
+]
+},
+
+{
+q:"How did Hannibal emotionally manipulate Abigail Hobbs after her trauma?",
+a:"By reconstructing emotional attachment beneath selectively controlled parental reassurance",
+o:[
+"By reconstructing emotional attachment beneath selectively controlled parental reassurance",
+"By reinforcing psychological dependence through carefully calibrated relational comfort",
+"By synchronizing emotional vulnerability against strategically filtered interpersonal trust",
+"By integrating trauma stabilization within gradually escalating dependency patterns"
+]
+},
+
+{
+q:"What was the true foundation of Hannibal’s public social persona?",
+a:"Refinement itself functioned as camouflage against instinctive psychological suspicion",
+o:[
+"Refinement itself functioned as camouflage against instinctive psychological suspicion",
+"Intellectual sophistication redirected attention from emotionally concealed predatory behavior",
+"Social elegance synchronized naturally with psychologically reassuring interpersonal trust",
+"Cultural refinement balanced seamlessly against strategically filtered emotional transparency"
+]
+},
+
+{
+q:"How did Hannibal psychologically isolate Will from reliable emotional support?",
+a:"By associating interpersonal trust with escalating emotional and investigative instability",
+o:[
+"By associating interpersonal trust with escalating emotional and investigative instability",
+"By synchronizing relational exhaustion against unresolved psychological dependency patterns",
+"By reinforcing identity confusion beneath emotionally fragmented support structures",
+"By integrating behavioral suspicion within progressively unstable personal relationships"
+]
+},
+
+{
+q:"What made Hannibal’s foresight intellectually terrifying to experienced investigators?",
+a:"He anticipated emotional and procedural reactions simultaneously across layered scenarios",
+o:[
+"He anticipated emotional and procedural reactions simultaneously across layered scenarios",
+"He synchronized psychological probability against evolving institutional behavioral responses",
+"He balanced strategic manipulation with adaptive interpersonal contingency prediction",
+"He integrated investigative logic within emotionally calibrated situational forecasting"
+]
+},
+
+{
+q:"How did Hannibal psychologically weaponize emotional hope against his targets?",
+a:"By granting temporary emotional relief before orchestrating devastating psychological reversals",
+o:[
+"By granting temporary emotional relief before orchestrating devastating psychological reversals",
+"By synchronizing reassurance beneath strategically unstable relational circumstances",
+"By integrating emotional optimism within carefully structured destructive manipulation cycles",
+"By redirecting vulnerability through psychologically destabilizing expectation shifts"
+]
+},
+
+{
+q:"What demonstrated Hannibal’s abstract intelligence beyond ordinary criminal manipulation?",
+a:"He transformed symbolic violence into psychologically meaningful interpersonal communication",
+o:[
+"He transformed symbolic violence into psychologically meaningful interpersonal communication",
+"He synchronized aesthetic expression with intellectually coded behavioral symbolism",
+"He integrated philosophical concepts beneath emotionally disruptive criminal methodology",
+"He balanced artistic abstraction against strategically layered psychological intention"
+]
+},
+
+{
+q:"Why was Hannibal’s relationship with Will Graham intellectually unique?",
+a:"Hannibal viewed Will as psychologically capable of genuinely understanding his nature",
+o:[
+"Hannibal viewed Will as psychologically capable of genuinely understanding his nature",
+"Hannibal recognized mirrored emotional instability beneath Will’s investigative empathy",
+"Hannibal identified transformative psychological compatibility within criminal perception",
+"Hannibal perceived intellectual equality through emotionally fractured behavioral insight"
+]
+},
+
+{
+q:"How did Hannibal repeatedly manipulate investigations without direct interference?",
+a:"By controlling interpretive assumptions rather than physically altering investigative reality",
+o:[
+"By controlling interpretive assumptions rather than physically altering investigative reality",
+"By synchronizing emotional confusion against procedurally reinforced forensic conclusions",
+"By integrating manipulated perception within psychologically believable investigative logic",
+"By redirecting institutional suspicion through strategically balanced behavioral ambiguity"
+]
+},
+
+{
+q:"What made Hannibal’s emotional composure under pressure so extraordinary?",
+a:"Extreme compartmentalization stabilized emotional behavior during escalating investigative danger",
+o:[
+"Extreme compartmentalization stabilized emotional behavior during escalating investigative danger",
+"Psychological detachment reinforced socially controlled interpersonal behavioral responses",
+"Adaptive self-discipline synchronized naturally with emotionally restrained interaction patterns",
+"Strategic emotional regulation balanced seamlessly against unstable external circumstances"
+]
+},
+
+{
+q:"How did Hannibal psychologically dominate Alana Bloom over prolonged interaction?",
+a:"By integrating emotional intimacy within strategically restrained interpersonal vulnerability",
+o:[
+"By integrating emotional intimacy within strategically restrained interpersonal vulnerability",
+"By synchronizing relational trust against psychologically filtered emotional transparency",
+"By balancing intellectual compatibility beneath carefully measured romantic influence",
+"By redirecting emotional dependence through socially reassuring behavioral authenticity"
+]
+},
+
+{
+q:"Why did Hannibal encourage Will’s descent into psychological darkness intentionally?",
+a:"To reshape moral identity through progressively immersive criminal self-recognition",
+o:[
+"To reshape moral identity through progressively immersive criminal self-recognition",
+"To synchronize emotional instability against fractured investigative behavioral boundaries",
+"To integrate empathy distortion within psychologically escalating identity transformation",
+"To reinforce criminal understanding beneath increasingly unstable moral perception"
+]
+},
+
+{
+q:"What was Hannibal’s greatest strategic deception throughout the series?",
+a:"Convincing investigators he emotionally supported them while orchestrating their destruction",
+o:[
+"Convincing investigators he emotionally supported them while orchestrating their destruction",
+"Synchronizing interpersonal trust against carefully concealed predatory psychological motives",
+"Integrating authentic emotional guidance within strategically manipulative behavioral influence",
+"Redirecting institutional confidence through emotionally calibrated professional reliability"
+]
+},
+
+{
+q:"How did Hannibal maintain trust despite constant proximity to violent investigations?",
+a:"By embedding emotional usefulness within psychologically reassuring professional competence",
+o:[
+"By embedding emotional usefulness within psychologically reassuring professional competence",
+"By synchronizing forensic expertise against socially validated interpersonal credibility",
+"By integrating investigative support within emotionally stabilizing behavioral interactions",
+"By reinforcing professional reliability beneath strategically filtered psychological composure"
+]
+},
+
+{
+q:"What made Hannibal’s manipulation of perception intellectually superior to ordinary deception?",
+a:"He reshaped interpretive frameworks instead of merely concealing objective truth",
+o:[
+"He reshaped interpretive frameworks instead of merely concealing objective truth",
+"He synchronized emotional assumptions against procedurally believable behavioral evidence",
+"He integrated psychological realism within strategically distorted investigative narratives",
+"He redirected interpersonal reasoning through emotionally calibrated perceptual influence"
+]
+},
+
+{
+q:"How did Hannibal repeatedly exploit institutional weaknesses inside the FBI?",
+a:"By synchronizing emotional dependency with procedurally fragmented investigative structures",
+o:[
+"By synchronizing emotional dependency with procedurally fragmented investigative structures",
+"By integrating psychological influence beneath operationally unstable institutional hierarchy",
+"By redirecting forensic interpretation through emotionally compromised investigative trust",
+"By reinforcing behavioral uncertainty within strategically vulnerable procedural systems"
+]
+},
+
+{
+q:"What made Hannibal intellectually terrifying even to highly analytical individuals?",
+a:"His psychological insight operated simultaneously across emotional and strategic dimensions",
+o:[
+"His psychological insight operated simultaneously across emotional and strategic dimensions",
+"His adaptive manipulation synchronized naturally with procedurally rational behavior patterns",
+"His emotional forecasting integrated seamlessly within strategically layered contingency planning",
+"His interpersonal influence balanced effortlessly against intellectually concealed intentions"
+]
+},
+
+{
+q:"How did Hannibal maintain psychological superiority during high-risk confrontations?",
+a:"By stabilizing emotional control while anticipating multiple behavioral response outcomes",
+o:[
+"By stabilizing emotional control while anticipating multiple behavioral response outcomes",
+"By synchronizing strategic composure against psychologically escalating interpersonal tension",
+"By integrating adaptive prediction within emotionally restrained situational interaction",
+"By redirecting conflict perception through intellectually balanced behavioral regulation"
+]
+},
+
+{
+q:"What ultimately defined Hannibal Lecter’s intelligence across the entire series?",
+a:"The seamless integration of psychology, foresight, manipulation and adaptive strategy",
+o:[
+"The seamless integration of psychology, foresight, manipulation and adaptive strategy",
+"The synchronization of emotional perception with layered investigative contingency planning",
+"The balance between interpersonal influence and psychologically calibrated deception systems",
+"The integration of strategic prediction within emotionally controlled behavioral manipulation"
+]
+}
+
+];
+
+let current = 0;
+let score = 0;
+let time = 300;
+
+const qEl = document.getElementById("question");
+const oEl = document.getElementById("options");
+const rEl = document.getElementById("result");
+
+function shuffle(arr){
+return arr.sort(()=>Math.random()-0.5);
+}
+
+function loadQuestion(){
+
+if(current >= questions.length){
+endGame();
+return;
+}
+
+document.getElementById("current").innerText = current+1;
+
+const q = questions[current];
+
+qEl.innerText = q.q;
+
+oEl.innerHTML = "";
+
+rEl.innerHTML = "";
+
+shuffle(q.o);
+
+q.o.forEach(opt=>{
+
+const btn = document.createElement("button");
+
+btn.classList.add("option");
+
+btn.innerText = opt;
+
+btn.onclick = ()=>checkAnswer(btn,opt,q.a);
+
+oEl.appendChild(btn);
+
+});
+
+}
+
+function correctSound(){
+
+let ctx = new(window.AudioContext || window.webkitAudioContext)();
+
+let osc = ctx.createOscillator();
+
+osc.type = "sine";
+
+osc.frequency.value = 650;
+
+osc.connect(ctx.destination);
+
+osc.start();
+
+setTimeout(()=>{
+osc.stop();
+},140);
+
+}
+
+function wrongSound(){
+
+let ctx = new(window.AudioContext || window.webkitAudioContext)();
+
+let osc = ctx.createOscillator();
+
+osc.type = "square";
+
+osc.frequency.value = 180;
+
+osc.connect(ctx.destination);
+
+osc.start();
+
+setTimeout(()=>{
+osc.stop();
+},280);
+
+}
+
+function checkAnswer(btn,selected,correct){
+
+const buttons = document.querySelectorAll(".option");
+
+buttons.forEach(b=>b.disabled=true);
+
+if(selected===correct){
+
+btn.classList.add("correct");
+
+score++;
+
+document.getElementById("score").innerText = score;
+
+rEl.innerHTML = "✅ Correct.";
+
+correctSound();
+
+}else{
+
+btn.classList.add("wrong");
+
+buttons.forEach(b=>{
+if(b.innerText===correct){
+b.classList.add("correct");
+}
+});
+
+rEl.innerHTML = "❌ Incorrect.";
+
+wrongSound();
+
+}
+
+setTimeout(()=>{
+
+current++;
+
+loadQuestion();
+
+},900);
+
+}
+
+function endGame(){
+
+document.getElementById("quizBox").style.display="none";
+
+document.getElementById("final").style.display="block";
+
+let msg = "";
+
+if(score===30){
+
+msg = "great job, future cannibal serial killer";
+
+document.getElementById("popup").innerHTML = "🧠 PERFECT SCORE 🧠";
+
+document.getElementById("popup").style.display="block";
+
+}else if(score < 10){
+
+msg = "bro is getting on a cannibal's plate";
+
+}else{
+
+msg = "you survived Hannibal’s psychological dinner table";
+
+}
+
+document.getElementById("finalText").innerHTML = `
+<h2>🎯 Final Score: ${score}/30</h2>
+<h2>${msg}</h2>
+`;
+
+}
+
+const timer = setInterval(()=>{
+
+time--;
+
+document.getElementById("time").innerText=time;
+
+if(time<=0){
+
+clearInterval(timer);
+
+endGame();
+
+}
+
+},1000);
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
